@@ -25,3 +25,19 @@ class TestFortunesPoint(unittest.TestCase):
         # TODO:
         # x isompi kuin algoritmille annettu koko
         self.assertTrue(True)
+
+class TestFortunesEdge(unittest.TestCase):
+    def setUp(self):
+        "kirjottelen myöhemmin"
+
+class TestFortunesArc(unittest.TestCase):
+    def setUp(self):
+        "kirjottelen myöhemmin"
+
+class TestFortunesBinaryTreeBark(unittest.TestCase):
+    def setUp(self):
+        "kirjottelen myöhemmin"
+
+class TestFortunesBinaryTreeLeaf(unittest.TestCase):
+    def setUp(self):
+        "kirjottelen myöhemmin"
