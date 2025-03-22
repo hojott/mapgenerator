@@ -1,43 +1,51 @@
 import unittest
 from mapgenerator.algorithms import fortunes
 
-class TestFortunesPoint(unittest.TestCase):
+class TestPoint(unittest.TestCase):
     def setUp(self):
         pass
 
     def test_konstruktorille_pateva_x_luku(self):
-        p = fortunes.FortunesPoint(10, 20)
+        p = fortunes.Point(10, 20)
         self.assertAlmostEqual(p.x, 10)
 
     def test_konstruktorille_pateva_y_luku(self):
-        p = fortunes.FortunesPoint(10, 20)
+        p = fortunes.Point(10, 20)
         self.assertAlmostEqual(p.y, 20)
 
     def test_konstruktorille_huono_x_luku(self):
         with self.assertRaises(ValueError):
-            fortunes.FortunesPoint(-10, 20)
+            fortunes.Point(-10, 20)
     
     def test_konstruktorille_epaluku_x(self):
         with self.assertRaises(TypeError):
-            fortunes.FortunesPoint("10", 20)
+            fortunes.Point("10", 20)
 
     def test_konstruktorille_liian_suuri_x(self):
         # TODO:
         # x isompi kuin algoritmille annettu koko
         self.assertTrue(True)
 
-class TestFortunesEdge(unittest.TestCase):
+class TestEdge(unittest.TestCase):
     def setUp(self):
         "kirjottelen myöhemmin"
 
-class TestFortunesArc(unittest.TestCase):
+class TestArc(unittest.TestCase):
     def setUp(self):
         "kirjottelen myöhemmin"
 
-class TestFortunesBinaryTreeBark(unittest.TestCase):
+class TestBinaryTreeBark(unittest.TestCase):
     def setUp(self):
         "kirjottelen myöhemmin"
 
-class TestFortunesBinaryTreeLeaf(unittest.TestCase):
+class TestBinaryTreeLeaf(unittest.TestCase):
+    def setUp(self):
+        "kirjottelen myöhemmin"
+
+class TestEvent(unittest.TestCase):
+    def setUp(self):
+        "kirjottelen myöhemmin"
+
+class TestFortunesAlgorithm(unittest.TestCase):
     def setUp(self):
         "kirjottelen myöhemmin"
