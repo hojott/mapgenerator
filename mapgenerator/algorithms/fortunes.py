@@ -95,6 +95,15 @@ class Arc:
         return self._focal
 
 
+class BinaryTreeLeaf: # pylint: disable=too-few-public-methods
+    def __init__(self, point: Arc):
+        self._point = point
+
+    @property
+    def point(self) -> Arc:
+        return self._point
+
+
 class BinaryTreeBark:
     def __init__(
             self,
@@ -126,15 +135,6 @@ class BinaryTreeBark:
     @right.setter
     def right(self, new_right: Self | BinaryTreeLeaf):
         self._right = new_right
-
-
-class BinaryTreeLeaf: # pylint: disable=too-few-public-methods
-    def __init__(self, point: Arc):
-        self._point = point
-
-    @property
-    def point(self) -> Arc:
-        return self._point
 
 
 class EventType(Enum):
