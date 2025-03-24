@@ -29,4 +29,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Run pylint
-        run: poetry run pylint src
+        run: poetry run pylint mapgenerator

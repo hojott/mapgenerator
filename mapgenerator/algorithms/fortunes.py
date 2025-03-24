@@ -20,12 +20,14 @@ class Point:
         return n
 
     def __gt__(self, other):
+        # might be redundant, will fix later
         return self.x > other.x
 
     def __lt__(self, other):
         return self.x < other.x
 
     def __eq__(self, other):
+        # might be redundant, will fix later
         return self.x == other.x
 
     @property
@@ -93,11 +95,6 @@ class Arc:
         return self._focal
 
 
-class BinaryTreeLeaf:
-    def __init__(self, point: Arc):
-        self._point = point
-
-
 class BinaryTreeBark:
     def __init__(
             self,
@@ -110,10 +107,39 @@ class BinaryTreeBark:
         self._left = left
         self._right = right
 
+    @property
+    def point(self) -> Edge:
+        return self._point
+
+    @property
+    def left(self) -> Self | BinaryTreeLeaf:
+        return self._left
+
+    @left.setter
+    def left(self, new_left: Self | BinaryTreeLeaf):
+        self._left = new_left
+
+    @property
+    def right(self) -> Self | BinaryTreeLeaf:
+        return self._right
+
+    @right.setter
+    def right(self, new_right: Self | BinaryTreeLeaf):
+        self._right = new_right
+
+
+class BinaryTreeLeaf: # pylint: disable=too-few-public-methods
+    def __init__(self, point: Arc):
+        self._point = point
+
+    @property
+    def point(self) -> Arc:
+        return self._point
+
 
 class EventType(Enum):
-    SiteEvent = 0
-    CircleEvent = 1
+    SITE_EVENT = 0
+    CIRCLE_EVENT = 1
 
 
 class Event:
@@ -133,7 +159,8 @@ class Event:
 class FortunesAlgorithm:
     def __init__(self, size: tuple[int, int], points: list[Point]):
         self._size = self.__validate_size(size)
-        self._event_queue = self.__priority_queue(self.__validate_points(points))
+        self._event_queue = PriorityQueue()
+        self.add_points(points)
 
         self._complete = []
         self._diretrix = 0
@@ -145,12 +172,31 @@ class FortunesAlgorithm:
 
         return self._complete
 
+    def add_points(self, points: list[Point]):
+        """ Add a number of sites/points to the canvas """
+
+        for point in points:
+            self.add_point(point)
+
+    def add_point(self, point: Point):
+        """ Add a new site/point to the canvas """
+
+        point = self.__validate_point(point)
+
+        self._event_queue.put(
+            Event(
+                EventType.SITE_EVENT,
+                point
+            ),
+            block=False
+        )
+
     def __next_event(self):
         event = self._event_queue.get()
 
         self._diretrix = event.point.x
 
-        if event.type == EventType.SiteEvent:
+        if event.type == EventType.SITE_EVENT:
             self.__site_event(event.point)
         else:
             self.__circle_event(event.point)
@@ -161,18 +207,10 @@ class FortunesAlgorithm:
     def __circle_event(self, point):
         pass
 
-    def __priority_queue(self, points: list[Point]) -> PriorityQueue[Event]:
-        pq = PriorityQueue()
-
-        for p in points:
-            pq.put(Event(EventType.SiteEvent, p), block=False) # will raise error if pq is full
-
-        return pq
-
     def __validate_size(self, size: tuple[int, int]) -> tuple[int, int]:
         # TODO:
         return size
 
-    def __validate_points(self, points: list[Point]) -> list[Point]:
+    def __validate_point(self, point: Point) -> Point:
         # TODO:
-        return points
+        return point

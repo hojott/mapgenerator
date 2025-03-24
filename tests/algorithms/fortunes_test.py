@@ -16,15 +16,11 @@ class TestPoint(unittest.TestCase):
     def test_konstruktorille_huono_x_luku(self):
         with self.assertRaises(ValueError):
             fortunes.Point(-10, 20)
-    
+
     def test_konstruktorille_epaluku_x(self):
         with self.assertRaises(TypeError):
             fortunes.Point("10", 20)
 
-    def test_konstruktorille_liian_suuri_x(self):
-        # TODO:
-        # x isompi kuin algoritmille annettu koko
-        self.assertTrue(True)
 
 class TestEdge(unittest.TestCase):
     def setUp(self):
