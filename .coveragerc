@@ -1,0 +1,3 @@
+[run]
+source = .
+omit = tests/**, mapgenerator/**/__init__.py,mapgenerator/__main__.py,mapgenerator/main.py
