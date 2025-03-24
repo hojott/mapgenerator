@@ -3,11 +3,14 @@ Map generator with Fortune's algorithm at it's core
 
 ## Running
 ```
-python mapgenerator
+python -m mapgenerator
 ```
 
 ## Testing
 ```
-poetry run pytest
-```
+poetry run coverage --branch -m pytest
 
+poetry run coverage html
+
+poetry run pylint mapgenerator
+```
