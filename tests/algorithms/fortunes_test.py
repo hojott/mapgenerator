@@ -24,7 +24,40 @@ class TestPoint(unittest.TestCase):
 
 class TestEdge(unittest.TestCase):
     def setUp(self):
-        "kirjottelen myöhemmin"
+        pass
+
+    def test_konstruktorille_pateva_start_luku(self):
+        start_point = fortunes.Point(10, 20)
+        end_point = fortunes.Point(30, 40)
+
+        e = fortunes.Edge(start_point, end_point)
+        self.assertAlmostEqual(e.start, start_point)
+
+    def test_konstruktorille_pateva_end_luku(self):
+        start_point = fortunes.Point(10, 20)
+        end_point = fortunes.Point(30, 40)
+
+        e = fortunes.Edge(start_point, end_point)
+        self.assertAlmostEqual(e.end, end_point)
+
+    def test_konstruktorille_end_none(self):
+        start_point = fortunes.Point(10, 20)
+        end_point = None
+
+        e = fortunes.Edge(start_point, end_point)
+        self.assertAlmostEqual(e.end, end_point)
+
+    def test_lisaa_end_point(self):
+        start_point = fortunes.Point(10, 20)
+        end_point = None
+
+        e = fortunes.Edge(start_point, end_point)
+
+        new_end_point = fortunes.Point(30, 40)
+        e.end = new_end_point
+
+        self.assertAlmostEqual(e.end, new_end_point)
+
 
 class TestArc(unittest.TestCase):
     def setUp(self):
