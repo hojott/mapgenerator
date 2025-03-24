@@ -41,16 +41,16 @@ class Point:
 
 class Edge:
     def __init__(self, start: Point, end: Point | None):
-        self._start = self.__validate_start(start)
-        self._end = self.__validate_end(end)
+        self._start = self.__validate_point(start)
+        self._end = self.__validate_maybe_none(end)
 
-    def __validate_start(self, point: Point) -> Point:
+    def __validate_point(self, point: Point) -> Point:
         if not isinstance(point, Point):
             raise TypeError("Edge points must be of type Point, was", type(point))
 
         return point
 
-    def __validate_end(self, point: Point | None) -> Point | None:
+    def __validate_maybe_none(self, point: Point | None) -> Point | None:
         if not isinstance(point, Point) and point is not None:
             raise TypeError("Edge points must be of type Point, was", type(point))
 
@@ -66,7 +66,7 @@ class Edge:
 
     @end.setter
     def end(self, new_end: Point | None):
-        if new_end == self.__validate_end(new_end):
+        if new_end == self.__validate_point(new_end):
             self._end = new_end
 
 
@@ -88,7 +88,7 @@ class Arc:
 
     @property
     def end(self) -> Point:
-        return self._start
+        return self._end
 
     @property
     def focal(self) -> Point:
@@ -96,29 +96,50 @@ class Arc:
 
 
 class BinaryTreeLeaf: # pylint: disable=too-few-public-methods
-    def __init__(self, point: Arc):
-        self._point = point
+    def __init__(self, arc: Arc):
+        self._arc = self.__validate_arc(arc)
+
+    def __validate_arc(self, arc: Arc) -> Arc:
+        if not isinstance(arc, Arc):
+            raise TypeError("BinaryTreeLeaf arc must be of type Arc, was", type(arc))
+
+        return arc
 
     @property
-    def point(self) -> Arc:
-        return self._point
+    def arc(self) -> Arc:
+        return self._arc
 
 
 class BinaryTreeBark:
     def __init__(
             self,
-            point: Edge,
+            edge: Edge,
             left: Self | BinaryTreeLeaf,
             right: Self | BinaryTreeLeaf
         ):
         """ The idea is that normal nodes are edges, the leaves are arcs """
-        self._point = point
-        self._left = left
-        self._right = right
+        self._edge = self.__validate_edge(edge)
+        self._left = self.__validate_child(left)
+        self._right = self.__validate_child(right)
+
+    def __validate_edge(self, edge: Edge) -> Edge:
+        if not isinstance(edge, Edge):
+            raise TypeError("BinaryTreeLeaf edge must be of type Edge, was", type(edge))
+
+        return edge
+
+    def __validate_child(self, child: Self | BinaryTreeLeaf) -> Self | BinaryTreeLeaf:
+        if not isinstance(child, BinaryTreeBark) and not isinstance(child, BinaryTreeLeaf):
+            raise TypeError(
+                "BinaryTreeBark child must be of type BinaryTreeBark or BinaryTreeLeaf, was",
+                type(child)
+            )
+
+        return child
 
     @property
-    def point(self) -> Edge:
-        return self._point
+    def edge(self) -> Edge:
+        return self._edge
 
     @property
     def left(self) -> Self | BinaryTreeLeaf:
@@ -126,7 +147,7 @@ class BinaryTreeBark:
 
     @left.setter
     def left(self, new_left: Self | BinaryTreeLeaf):
-        self._left = new_left
+        self._left = self.__validate_child(new_left)
 
     @property
     def right(self) -> Self | BinaryTreeLeaf:
@@ -134,7 +155,7 @@ class BinaryTreeBark:
 
     @right.setter
     def right(self, new_right: Self | BinaryTreeLeaf):
-        self._right = new_right
+        self._right = self.__validate_child(new_right)
 
 
 class EventType(Enum):
@@ -144,8 +165,20 @@ class EventType(Enum):
 
 class Event:
     def __init__(self, event_type: EventType, point: Point):
-        self._type = event_type
-        self._point = point
+        self._type = self.__validate_type(event_type)
+        self._point = self.__validate_point(point)
+
+    def __validate_point(self, point: Point) -> Point:
+        if not isinstance(point, Point):
+            raise TypeError("Arc points must be of type Point, was", type(point))
+
+        return point
+
+    def __validate_type(self, event_type: EventType) -> EventType:
+        if not isinstance(event_type, EventType):
+            raise TypeError("Event type must be of type EventType, was", type(event_type))
+
+        return event_type
 
     @property
     def type(self) -> EventType:
