@@ -265,6 +265,15 @@ class TestBinaryTree(TestCase):
 
         self.assertAlmostEqual(b.root, root)
 
+    def test_aseta_uusi_none(self):
+        root = None
+        b = fortunes.BinaryTree(root=root)
+
+        root = None
+
+        with self.assertRaises(TypeError):
+            b.root = root
+
     def test_etsi_arc_root_on_none(self):
         root = None
         b = fortunes.BinaryTree(root=root)
