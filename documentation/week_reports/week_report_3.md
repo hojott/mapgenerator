@@ -1,6 +1,6 @@
 ## Viikkoraportti 3
 
-Työtunnit: 2h
+Työtunnit: 4h
 
 1. **Mitä olen tehnyt tällä viikolla?** - Olen conffannut coveragen, CodeCovin ja pylintin. Olen kirjoittanut testit ali-tietorakenteille. 
 
@@ -11,4 +11,3 @@ Työtunnit: 2h
 4. **Mikä jäi epäselväksi tai tuottanut vaikeuksia?** - Kysymys: saanko käyttää Pythonin sisäistä PriorityQueue:ta, vai pitääkö kirjoittaa oma?
 
 5. **Mitä teen seuraavaksi?** - Seuraavaksi kirjoitan loppuun Fortunen algoritmin.
-
