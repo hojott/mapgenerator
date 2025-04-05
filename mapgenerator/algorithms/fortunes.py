@@ -1,4 +1,6 @@
 """ mapgenerator.algorithms.fortunes """
+from __future__ import annotations
+
 from math import floor
 from queue import PriorityQueue
 from typing import Self
@@ -81,7 +83,7 @@ class Ray:
         return self._direction
 
 
-class Arc: # pylint: disable=too-few-public-methods
+class Arc:
     def __init__(self, focal: Point):
         """ Arcs are defined by their focal point and their (grand)parents on the binary tree """
         self._focal = self.__validate(focal)
@@ -122,6 +124,13 @@ class BinaryTreeLeaf: # pylint: disable=too-few-public-methods
     def __init__(self, arc: Arc):
         self._arc = self.__validate_arc(arc)
 
+        # kuulemma miten pitää tehä jos viel undefined t. pep-0484
+        # self._parent: 'BinaryTreeBark' | None = None
+        # ...
+        # https://stackoverflow.com/a/55344418
+        # mä vihaan python tyypitystä
+        self._parent: BinaryTreeBark | None = None
+
     def __validate_arc(self, arc: Arc) -> Arc:
         if not isinstance(arc, Arc):
             raise TypeError("BinaryTreeLeaf arc must be of type Arc, was", type(arc))
@@ -131,6 +140,11 @@ class BinaryTreeLeaf: # pylint: disable=too-few-public-methods
     @property
     def arc(self) -> Arc:
         return self._arc
+
+    @property
+    def parent(self) -> BinaryTreeBark | None:
+        """" will be set by binary tree bark """
+        return self._parent
 
 
 class BinaryTreeBark:
@@ -144,6 +158,7 @@ class BinaryTreeBark:
         self._ray = self.__validate_ray(ray)
         self._left = self.__validate_child(left)
         self._right = self.__validate_child(right)
+        self._parent: Self | None = None
 
     def __validate_ray(self, ray: Ray) -> Ray:
         if not isinstance(ray, Ray):
@@ -171,6 +186,7 @@ class BinaryTreeBark:
     @left.setter
     def left(self, new_left: Self | BinaryTreeLeaf):
         self._left = self.__validate_child(new_left)
+        new_left._parent = self
 
     @property
     def right(self) -> Self | BinaryTreeLeaf:
@@ -179,6 +195,11 @@ class BinaryTreeBark:
     @right.setter
     def right(self, new_right: Self | BinaryTreeLeaf):
         self._right = self.__validate_child(new_right)
+        new_right._parent = self
+
+    @property
+    def parent(self) -> Self | None:
+        return self._parent
 
 
 class Side(Enum):
@@ -192,20 +213,80 @@ class BinaryTree:
 
     def find_arc(self, y: int) -> tuple[BinaryTreeLeaf | None, BinaryTreeBark | None, Side | None]:
         child: BinaryTreeBark | BinaryTreeLeaf | None = self.root
-        parent: BinaryTreeBark | None = None
         side: Side | None = None
 
         while isinstance(child, BinaryTreeBark):
             if child.ray.y > y:
-                parent = child
-                child = parent.left
+                child = child.left
                 side = Side.LEFT
             else:
-                parent = child
-                child = parent.right
+                child = child.right
                 side = Side.RIGHT
 
-        return (child, parent, side)
+        return (child, side)
+
+    def find_next_arc(self, side: Side, leaf: BinaryTreeLeaf) -> BinaryTreeLeaf | None:
+        if side == Side.LEFT:
+            return self.__find_next_arc_left(leaf)
+
+        return self.__find_next_arc_right(leaf)
+
+    def __find_next_arc_left(self, leaf: BinaryTreeLeaf) -> BinaryTreeLeaf | None:
+        if leaf.parent is None:
+            return None
+
+        parent = leaf.parent
+        while parent.parent is not None:
+            parent = parent.parent
+            child = parent.left
+
+            if child is None:
+                continue
+
+            if isinstance(child, BinaryTreeLeaf) \
+            or isinstance(child, BinaryTreeBark):
+                break
+
+        if parent.parent is None:
+            return None
+
+        child = parent.parent
+        while not isinstance(child, BinaryTreeLeaf):
+            if child.right is not None:
+                child = child.right
+            else:
+                child = child.left
+
+        return child
+
+    def __find_next_arc_right(self, leaf: BinaryTreeLeaf) -> BinaryTreeLeaf | None:
+        if leaf.parent is None:
+            return None
+
+        parent = leaf.parent
+        while parent.parent is not None:
+            parent = parent.parent
+            child = parent.right
+
+            if child is None:
+                continue
+
+            if isinstance(child, BinaryTreeLeaf) \
+            or isinstance(child, BinaryTreeBark):
+                break
+
+        if parent.parent is None:
+            return None
+
+        child = parent.parent
+        while not isinstance(child, BinaryTreeLeaf):
+            if child.left is not None:
+                child = child.left
+            else:
+                child = child.right
+
+        return child
+
 
     def __validate_initial(
         self,
@@ -321,8 +402,13 @@ class FortunesAlgorithm:
             self.__circle_event(event.point)
 
     def __site_event(self, point):
+        """ Site events are one of the two types of events,
+            that happen everytime a new site (point on the map)
+            is discovered """
 
-        intersect_leaf, intersect_bark, side = self._beachline.find_arc(point.y)
+        # TODO: Siivoa :D
+
+        intersect_leaf, side = self._beachline.find_arc(point.y)
 
         if intersect_leaf is not None:
             intersect_arc = intersect_leaf.arc
@@ -336,14 +422,33 @@ class FortunesAlgorithm:
                 )
             )
 
-        if intersect_bark is not None:
+        if intersect_leaf.parent is not None:
             if side == Side.LEFT:
-                intersect_bark.left = new_branch
+                intersect_leaf.parent.left = new_branch
             elif side == Side.RIGHT:
-                intersect_bark.right = new_branch
+                intersect_leaf.parent.right = new_branch
 
         else:
             self._beachline.root = new_branch
+
+        # Find circle events for new branch
+        new_arc = new_branch.right.left
+        for side, side_arc in zip(
+            [Side.LEFT, Side.RIGHT],
+            [new_branch.left, new_branch.right.right]
+        ):
+            #other_arc = self._beachline.find_next_arc(side, side_arc)
+
+            #circle_point = side_arc.circle_point(new_arc, other_arc)
+            circle_point = Point(10, 10)
+
+            self._event_queue.put(
+                Event(
+                    event_type=EventType.CIRCLE_EVENT,
+                    point=circle_point
+                ),
+                block=False
+            )
 
 
     def __new_binary_tree_branch(
@@ -359,6 +464,10 @@ class FortunesAlgorithm:
             )
         )
 
+        # Koska teemme uudet arc:it vanhan tilalle, vanha
+        # arc vaan jää leijuilemaan. Vaikka Pythonissa
+        # Garbage collector hoitaa, jää kuitenkin
+        # muistivuodosta
         arc_left = BinaryTreeLeaf(
             arc=Arc(
                 focal=intersect_arc.focal

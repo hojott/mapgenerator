@@ -278,13 +278,13 @@ class TestBinaryTree(TestCase):
         root = None
         b = fortunes.BinaryTree(root=root)
 
-        self.assertAlmostEqual(b.find_arc(10), (None, None, None))
+        self.assertAlmostEqual(b.find_arc(10), (None, None))
 
     def test_etsi_arc_root_on_leaf(self):
         root = self.leaf
         b = fortunes.BinaryTree(root=root)
 
-        self.assertAlmostEqual(b.find_arc(10), (self.leaf, None, None))
+        self.assertAlmostEqual(b.find_arc(10), (self.leaf, None))
 
     def test_etsi_arc_root_on_bark_leaf_on_vasen(self):
         root = self.bark
@@ -295,8 +295,7 @@ class TestBinaryTree(TestCase):
         b = fortunes.BinaryTree(root=root)
 
         self.assertAlmostEqual(b.find_arc(y)[0], self.leaf_vasen)
-        self.assertAlmostEqual(b.find_arc(y)[1], self.bark)
-        self.assertAlmostEqual(b.find_arc(y)[2], fortunes.Side.LEFT)
+        self.assertAlmostEqual(b.find_arc(y)[1], fortunes.Side.LEFT)
 
     def test_etsi_arc_root_on_bark_leaf_on_oikea(self):
         root = self.bark
@@ -307,8 +306,7 @@ class TestBinaryTree(TestCase):
         b = fortunes.BinaryTree(root=root)
 
         self.assertAlmostEqual(b.find_arc(y)[0], self.leaf_oikea)
-        self.assertAlmostEqual(b.find_arc(y)[1], self.bark)
-        self.assertAlmostEqual(b.find_arc(y)[2], fortunes.Side.RIGHT)
+        self.assertAlmostEqual(b.find_arc(y)[1], fortunes.Side.RIGHT)
 
     def test_etsi_arc_root_on_bark_leaf_on_oikea_y_on_sama(self):
         root = self.bark
@@ -319,8 +317,7 @@ class TestBinaryTree(TestCase):
         b = fortunes.BinaryTree(root=root)
 
         self.assertAlmostEqual(b.find_arc(y)[0], self.leaf_oikea)
-        self.assertAlmostEqual(b.find_arc(y)[1], self.bark)
-        self.assertAlmostEqual(b.find_arc(y)[2], fortunes.Side.RIGHT)
+        self.assertAlmostEqual(b.find_arc(y)[1], fortunes.Side.RIGHT)
 
     def test_etsi_arc_root_on_kaksi_tasoa_bark_sitten_leaf(self):
         root = self.bark
@@ -333,8 +330,7 @@ class TestBinaryTree(TestCase):
         b = fortunes.BinaryTree(root=root)
 
         self.assertAlmostEqual(b.find_arc(y)[0], self.leaf_oikea)
-        self.assertAlmostEqual(b.find_arc(y)[1], self.bark_oikea)
-        self.assertAlmostEqual(b.find_arc(y)[2], fortunes.Side.RIGHT)
+        self.assertAlmostEqual(b.find_arc(y)[1], fortunes.Side.RIGHT)
 
 
 
