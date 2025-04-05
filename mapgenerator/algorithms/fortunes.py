@@ -120,7 +120,7 @@ class Arc:
         return self._focal
 
 
-class BinaryTreeLeaf: # pylint: disable=too-few-public-methods
+class BinaryTreeLeaf:
     def __init__(self, arc: Arc):
         self._arc = self.__validate_arc(arc)
 
@@ -167,7 +167,7 @@ class BinaryTreeBark:
         return ray
 
     def __validate_child(self, child: Self | BinaryTreeLeaf) -> Self | BinaryTreeLeaf:
-        if not isinstance(child, BinaryTreeBark) and not isinstance(child, BinaryTreeLeaf):
+        if not isinstance(child, (BinaryTreeBark, BinaryTreeLeaf)):
             raise TypeError(
                 "BinaryTreeBark child must be of type BinaryTreeBark or BinaryTreeLeaf, was",
                 type(child)
@@ -186,7 +186,7 @@ class BinaryTreeBark:
     @left.setter
     def left(self, new_left: Self | BinaryTreeLeaf):
         self._left = self.__validate_child(new_left)
-        new_left._parent = self
+        new_left._parent = self # pylint: disable=protected-access
 
     @property
     def right(self) -> Self | BinaryTreeLeaf:
@@ -195,7 +195,7 @@ class BinaryTreeBark:
     @right.setter
     def right(self, new_right: Self | BinaryTreeLeaf):
         self._right = self.__validate_child(new_right)
-        new_right._parent = self
+        new_right._parent = self # pylint: disable=protected-access
 
     @property
     def parent(self) -> Self | None:
@@ -243,8 +243,7 @@ class BinaryTree:
             if child is None:
                 continue
 
-            if isinstance(child, BinaryTreeLeaf) \
-            or isinstance(child, BinaryTreeBark):
+            if isinstance(child, (BinaryTreeLeaf, BinaryTreeBark)):
                 break
 
         if parent.parent is None:
@@ -271,8 +270,7 @@ class BinaryTree:
             if child is None:
                 continue
 
-            if isinstance(child, BinaryTreeLeaf) \
-            or isinstance(child, BinaryTreeBark):
+            if isinstance(child, (BinaryTreeLeaf, BinaryTreeBark)):
                 break
 
         if parent.parent is None:
@@ -293,8 +291,7 @@ class BinaryTree:
         root: BinaryTreeBark | BinaryTreeLeaf | None
     ) -> BinaryTreeBark | BinaryTreeLeaf | None:
 
-        if not isinstance(root, BinaryTreeBark) \
-        and not isinstance(root, BinaryTreeLeaf) \
+        if not isinstance(root, (BinaryTreeBark, BinaryTreeLeaf)) \
         and root is not None:
             raise TypeError(
                 "BinaryTree root must be of type BinaryTreeBark, BinaryTreeLeaf or None was",
@@ -308,7 +305,7 @@ class BinaryTree:
         root: BinaryTreeBark | BinaryTreeLeaf
     ) -> BinaryTreeBark | BinaryTreeLeaf:
 
-        if not isinstance(root, BinaryTreeBark) and not isinstance(root, BinaryTreeLeaf):
+        if not isinstance(root, (BinaryTreeBark, BinaryTreeLeaf)):
             raise TypeError(
                 "BinaryTree root must be of type BinaryTreeBark or BinaryTreeLeaf was",
                 type(root)
