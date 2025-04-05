@@ -115,7 +115,7 @@ class Arc:
         arc_two: Arc
     ) -> tuple[Point, int]:
         """ Returns radius and center of circle """
-        # most basic ahh tapa tehä tää (kello on 23:30 ja en osaa enää lukiomatikkaa)
+        # kello on 23:30 ja mä vihaan matikkaa
 
         p1 = self.focal
         p2 = arc_one.focal
@@ -160,6 +160,9 @@ class Arc:
             (p2.x / p1.x)
 
         c = c_top/c_bot
+
+        # jos pääsit näin pitkälle, onnittelut
+        # mä siistin tän joskus™
 
         x = -int(a)
         y = -int(b)
