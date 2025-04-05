@@ -49,6 +49,7 @@ class TestPoint(TestCase):
 
         self.assertEqual(p2.y, -(p1.y))
 
+
 class TestEdge(TestCase):
     def setUp(self):
         self.start_point = Mock(spec=fortunes.Point)
@@ -333,28 +334,27 @@ class TestBinaryTree(TestCase):
         self.assertAlmostEqual(b.find_arc(y)[1], fortunes.Side.RIGHT)
 
 
-
 class TestEvent(TestCase):
     def setUp(self):
         self.event_type = Mock(spec=fortunes.EventType)
         self.point = Mock(spec=fortunes.Point)
 
     def test_konstruktorille_pateva_piste(self):
-        e = fortunes.Event(self.event_type, self.point)
+        e = fortunes.Event(10, self.event_type, self.point)
 
         self.assertAlmostEqual(e.point, self.point)
 
     def test_konstruktorille_pateva_site_event(self):
         event_type = fortunes.EventType.SITE_EVENT
 
-        e = fortunes.Event(event_type, self.point)
+        e = fortunes.Event(10, event_type, self.point)
 
         self.assertAlmostEqual(e.type, event_type)
 
     def test_konstruktorille_pateva_circle_event(self):
         event_type = fortunes.EventType.CIRCLE_EVENT
 
-        e = fortunes.Event(event_type, self.point)
+        e = fortunes.Event(10, event_type, self.point)
 
         self.assertAlmostEqual(e.type, fortunes.EventType.CIRCLE_EVENT)
 
@@ -362,13 +362,13 @@ class TestEvent(TestCase):
         point = 10
 
         with self.assertRaises(TypeError):
-            e = fortunes.Event(self.event_type, point)
+            e = fortunes.Event(10, self.event_type, point)
 
     def test_konstruktorille_epapateva_event_tyyppi(self):
         event_type = 10
 
         with self.assertRaises(TypeError):
-            e = fortunes.Event(event_type, self.point)
+            e = fortunes.Event(10, event_type, self.point)
 
 
 class TestFortunesAlgorithm(TestCase):

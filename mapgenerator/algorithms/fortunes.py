@@ -1,7 +1,7 @@
 """ mapgenerator.algorithms.fortunes """
 from __future__ import annotations
 
-from math import floor
+from math import floor, sqrt
 from queue import PriorityQueue
 from typing import Self
 from enum import Enum
@@ -108,6 +108,64 @@ class Arc:
         )
 
         return Point(dx, 1)
+
+    def circle_point( # pylint: disable=too-many-locals
+        self,
+        arc_one: Arc,
+        arc_two: Arc
+    ) -> tuple[Point, int]:
+        """ Returns radius and center of circle """
+        # most basic ahh tapa tehä tää (kello on 23:30 ja en osaa enää lukiomatikkaa)
+
+        p1 = self.focal
+        p2 = arc_one.focal
+        p3 = arc_two.focal
+
+        a_top = (p1.y - p3.y) / (p2.y - p1.y) * \
+            (p1.x**2 + p1.y**2 - p2.x**2 - p2.y**2) + \
+            p1.x**2 + p1.y**2 - p3.x**2 - p3.y**2
+
+        a_bot = 2 * (
+            (p3.x - p1.x) - \
+            (p1.x - p2.x) * \
+            (p1.y - p3.y) / (p2.y - p1.y)
+        )
+
+        a = a_top / a_bot
+
+        b_top = (p1.x - p3.x) / (p2.x - p1.x) * \
+            (p1.y**2 + p1.x**2 - p2.y**2 - p2.x**2) + \
+            p1.y**2 + p1.x**2 - p3.y**2 - p3.x**2
+
+        b_bot = 2 * (
+            (p3.y - p1.y) - \
+            (p1.y - p2.y) * \
+            (p1.x - p3.x) / (p2.x - p1.x)
+        )
+
+        b = b_top / b_bot
+
+        c_top = p3.x / p3.y * (p1.x**2 + p1.y**2) - \
+            p3.x**2 - p3.y**2 + \
+            ((p3.x / p1.x) * p1.y - p3.y) / \
+            (p2.y - p1.y * (p2.x / p1.x)) * \
+            (
+                (p2.x / p1.x) * (p1.x**2 + p1.y**2) - \
+                p2.x**2 - p2.y**2
+            )
+
+        c_bot = 1 - (p3.x / p1.x) - \
+            ((p3.x / p1.x) * p1.y - p3.y) / \
+            (p2.y - p1.y * (p2.x / p1.x)) * \
+            (p2.x / p1.x)
+
+        c = c_top/c_bot
+
+        x = -int(a)
+        y = -int(b)
+        r = int(sqrt(x**2 + y**2 - c))
+
+        return Point(-x, -y), r
 
     def __validate(self, point: Point) -> Point:
         if not isinstance(point, Point):
@@ -226,6 +284,10 @@ class BinaryTree:
         return (child, side)
 
     def find_next_arc(self, side: Side, leaf: BinaryTreeLeaf) -> BinaryTreeLeaf | None:
+
+        # öhh mä en iha tykkää täst implementaatiost,
+        # täs tulee joko paljon toistoo tai sit
+        # paljon if-lauseit
         if side == Side.LEFT:
             return self.__find_next_arc_left(leaf)
 
@@ -328,13 +390,14 @@ class EventType(Enum):
 
 
 class Event:
-    def __init__(self, event_type: EventType, point: Point):
+    def __init__(self, x: int, event_type: EventType, point: Point):
+        self._x = self.__validate_int(x)
         self._type = self.__validate_type(event_type)
         self._point = self.__validate_point(point)
 
     def __validate_point(self, point: Point) -> Point:
         if not isinstance(point, Point):
-            raise TypeError("Arc points must be of type Point, was", type(point))
+            raise TypeError("Event points must be of type Point, was", type(point))
 
         return point
 
@@ -344,6 +407,15 @@ class Event:
 
         return event_type
 
+    def __validate_int(self, x: int) -> int:
+        if not isinstance(x, int):
+            raise TypeError("Event x must be of type int, was", type(x))
+
+        return x
+
+    def __lt__(self, other: Self) -> bool:
+        return self.x < other.x
+
     @property
     def type(self) -> EventType:
         return self._type
@@ -351,6 +423,10 @@ class Event:
     @property
     def point(self) -> Point:
         return self._point
+
+    @property
+    def x(self) -> int:
+        return self._x
 
 
 class FortunesAlgorithm:
@@ -382,8 +458,9 @@ class FortunesAlgorithm:
 
         self._event_queue.put(
             Event(
-                EventType.SITE_EVENT,
-                point
+                x=point.x,
+                event_type=EventType.SITE_EVENT,
+                point=point
             ),
             block=False
         )
@@ -429,24 +506,25 @@ class FortunesAlgorithm:
             self._beachline.root = new_branch
 
         # Find circle events for new branch
-        new_arc = new_branch.right.left
-        for side, side_arc in zip(
+        new_arc_leaf = new_branch.right.left
+        for side, side_arc_leaf in zip(
             [Side.LEFT, Side.RIGHT],
             [new_branch.left, new_branch.right.right]
         ):
-            #other_arc = self._beachline.find_next_arc(side, side_arc)
+            new_arc = new_arc_leaf.arc
+            side_arc = side_arc_leaf.arc
+            other_arc = self._beachline.find_next_arc(side, side_arc)
 
-            #circle_point = side_arc.circle_point(new_arc, other_arc)
-            circle_point = Point(10, 10)
+            circle_point, r = side_arc.circle_point(new_arc, other_arc)
 
             self._event_queue.put(
                 Event(
+                    x=circle_point.x + r,
                     event_type=EventType.CIRCLE_EVENT,
                     point=circle_point
                 ),
                 block=False
             )
-
 
     def __new_binary_tree_branch(
         self,
