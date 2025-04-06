@@ -115,11 +115,25 @@ class Arc:
         arc_two: Arc
     ) -> tuple[Point, int]:
         """ Returns radius and center of circle """
-        # kello on 23:30 ja mä vihaan matikkaa
 
         p1 = self.focal
         p2 = arc_one.focal
         p3 = arc_two.focal
+
+        a, b, c = self.__circle_from_points(p1, p2, p3)
+
+        x = -int(a)
+        y = -int(b)
+        r = int(sqrt(x**2 + y**2 - c))
+
+        return Point(-x, -y), r
+
+    @staticmethod
+    def __circle_from_points(p1: Point, p2: Point, p3: Point) -> (int, int, int):
+        """ This method takes the equation x² + y² + ax + by + c = 0,
+            and with 3 points return (a, b, c) """
+
+        # kello on 23:30 ja mä vihaan matikkaa
 
         a_top = (p1.y - p3.y) / (p2.y - p1.y) * \
             (p1.x**2 + p1.y**2 - p2.x**2 - p2.y**2) + \
@@ -161,14 +175,10 @@ class Arc:
 
         c = c_top/c_bot
 
-        # jos pääsit näin pitkälle, onnittelut
+        # jos pääsit näin pitkälle, onnittelut.
         # mä siistin tän joskus™
 
-        x = -int(a)
-        y = -int(b)
-        r = int(sqrt(x**2 + y**2 - c))
-
-        return Point(-x, -y), r
+        return (a, b, c)
 
     def __validate(self, point: Point) -> Point:
         if not isinstance(point, Point):
@@ -544,8 +554,8 @@ class FortunesAlgorithm:
 
         # Koska teemme uudet arc:it vanhan tilalle, vanha
         # arc vaan jää leijuilemaan. Vaikka Pythonissa
-        # Garbage collector hoitaa, jää kuitenkin
-        # muistivuodosta
+        # Garbage collector hoitaa, jää kuitenkin salee
+        # riski muistivuodosta
         arc_left = BinaryTreeLeaf(
             arc=Arc(
                 focal=intersect_arc.focal
