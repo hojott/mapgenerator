@@ -1,6 +1,6 @@
 ## Viikkoraportti 4
 
-Työtunnit: 5h
+Työtunnit: 6h
 
 1. **Mitä olen tehnyt tällä viikolla?** - Lisäsin parent-ominaisuuden binääripuuhun tehokkaampaa algoritmiikkaa varten, sekä circle-point-ominaisuuden kaariin.
 

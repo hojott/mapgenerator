@@ -1,4 +1,6 @@
 """ mapgenerator.algorithms.fortunes """
+
+# kato BinaryTreeLeaf.__init__
 from __future__ import annotations
 
 from math import floor, sqrt
@@ -6,13 +8,17 @@ from queue import PriorityQueue
 from typing import Self
 from enum import Enum
 
+
 class Point:
     def __init__(self, x: int, y: int):
         # lets try keeping this in ints?
-        self._x = self.validate(x)
-        self._y = self.validate(y)
+        # floats suck (and might not really work
+        # with this alg)
+        # https://jacquesheunis.com/post/fortunes-algorithm-implementation/#edge-case-3-precision-issues-with-determining-intersections-of-curves-unsolved
+        self._x = self.__validate(x)
+        self._y = self.__validate(y)
 
-    def validate(self, n: int) -> int:
+    def __validate(self, n: int) -> int:
         if not isinstance(n, int):
             raise TypeError("Point attributes must be of type int, was", type(n))
 
@@ -23,6 +29,7 @@ class Point:
         return self.x > other.x
 
     def __lt__(self, other):
+        # might be redundant, will fix later
         return self.x < other.x
 
     def __eq__(self, other):
@@ -110,10 +117,10 @@ class Arc:
         return Point(dx, 1)
 
     def circle_point( # pylint: disable=too-many-locals
-        self,
-        arc_one: Arc,
-        arc_two: Arc
-    ) -> tuple[Point, int]:
+            self,
+            arc_one: Arc,
+            arc_two: Arc
+        ) -> tuple[Point, int]:
         """ Returns radius and center of circle """
 
         p1 = self.focal
@@ -196,7 +203,7 @@ class BinaryTreeLeaf:
         self._arc = self.__validate_arc(arc)
 
         # kuulemma miten pitää tehä jos viel undefined t. pep-0484
-        # self._parent: 'BinaryTreeBark' | None = None
+        # self._parent: 'BinaryTreeBark | None' = None
         # ...
         # https://stackoverflow.com/a/55344418
         # mä vihaan python tyypitystä
@@ -362,9 +369,9 @@ class BinaryTree:
 
 
     def __validate_initial(
-        self,
-        root: BinaryTreeBark | BinaryTreeLeaf | None
-    ) -> BinaryTreeBark | BinaryTreeLeaf | None:
+            self,
+            root: BinaryTreeBark | BinaryTreeLeaf | None
+        ) -> BinaryTreeBark | BinaryTreeLeaf | None:
 
         if not isinstance(root, (BinaryTreeBark, BinaryTreeLeaf)) \
         and root is not None:
@@ -376,9 +383,9 @@ class BinaryTree:
         return root
 
     def __validate_new(
-        self,
-        root: BinaryTreeBark | BinaryTreeLeaf
-    ) -> BinaryTreeBark | BinaryTreeLeaf:
+            self,
+            root: BinaryTreeBark | BinaryTreeLeaf
+        ) -> BinaryTreeBark | BinaryTreeLeaf:
 
         if not isinstance(root, (BinaryTreeBark, BinaryTreeLeaf)):
             raise TypeError(
@@ -404,6 +411,8 @@ class EventType(Enum):
 
 class Event:
     def __init__(self, x: int, event_type: EventType, point: Point):
+        """ The x axis of the event, the events type and a point that
+            goes with the event depending on type """
         self._x = self.__validate_int(x)
         self._type = self.__validate_type(event_type)
         self._point = self.__validate_point(point)
@@ -444,6 +453,8 @@ class Event:
 
 class FortunesAlgorithm:
     def __init__(self, size: tuple[int, int], points: list[Point]):
+        """ Size is the canvas size, and points are a list of points
+            with to run the algorithm """
         self._size = self.__validate_size(size)
         self._event_queue = PriorityQueue()
         self.add_points(points)
@@ -451,12 +462,6 @@ class FortunesAlgorithm:
         self._complete = []
         self._diretrix = 0
         self._beachline = BinaryTree(None)
-
-    def get_areas(self):
-        while not self._event_queue.empty():
-            self.__next_event()
-
-        return self._complete
 
     def add_points(self, points: list[Point]):
         """ Add a number of sites/points to the canvas """
@@ -478,7 +483,15 @@ class FortunesAlgorithm:
             block=False
         )
 
+    def get_areas(self) -> list[Edge]:
+        """ Return the edges that split up the area """
+        while not self._event_queue.empty():
+            self.__next_event()
+
+        return self._complete
+
     def __next_event(self):
+        """ Get next event from event queue """
         event = self._event_queue.get()
 
         self._diretrix = event.point.x
@@ -488,7 +501,7 @@ class FortunesAlgorithm:
         else:
             self.__circle_event(event.point)
 
-    def __site_event(self, point):
+    def __site_event(self, point: Point):
         """ Site events are one of the two types of events,
             that happen everytime a new site (point on the map)
             is discovered """
@@ -523,7 +536,8 @@ class FortunesAlgorithm:
         for side, side_arc_leaf in zip(
             [Side.LEFT, Side.RIGHT],
             [new_branch.left, new_branch.right.right]
-        ):
+            ):
+
             new_arc = new_arc_leaf.arc
             side_arc = side_arc_leaf.arc
             other_arc = self._beachline.find_next_arc(side, side_arc)
@@ -540,11 +554,12 @@ class FortunesAlgorithm:
             )
 
     def __new_binary_tree_branch(
-        self,
-        point: Point,
-        intersect_point: Point,
-        intersect_arc: Arc
-    ) -> BinaryTreeBark:
+            self,
+            point: Point,
+            intersect_point: Point,
+            intersect_arc: Arc
+        ) -> BinaryTreeBark:
+        """ Return a tree branch for a site event """
 
         arc_new = BinaryTreeLeaf(
             arc=Arc(
