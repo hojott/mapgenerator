@@ -173,9 +173,9 @@ class Arc:
             (p2.y - p1.y * (p2.x / p1.x)) * \
             (p2.x / p1.x)
 
-        c = c_top/c_bot
+        c = c_top / c_bot
 
-        # jos pääsit näin pitkälle, onnittelut.
+        # jos sä tarkistit tän koko methodin, onnittelut.
         # mä siistin tän joskus™
 
         return (a, b, c)
