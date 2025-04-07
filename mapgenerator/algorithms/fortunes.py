@@ -24,18 +24,6 @@ class Point:
 
         return n
 
-    def __gt__(self, other):
-        # might be redundant, will fix later
-        return self.x > other.x
-
-    def __lt__(self, other):
-        # might be redundant, will fix later
-        return self.x < other.x
-
-    def __eq__(self, other):
-        # might be redundant, will fix later
-        return self.x == other.x
-
     def __neg__(self):
         return Point(-self.x, -self.y)
 
@@ -127,65 +115,76 @@ class Arc:
         p2 = arc_one.focal
         p3 = arc_two.focal
 
-        a, b, c = self.__circle_from_points(p1, p2, p3)
+        a, b, c, *_ = self.__circle_from_points(p1, p2, p3)
 
         x = -int(a)
         y = -int(b)
         r = int(sqrt(x**2 + y**2 - c))
 
-        return Point(-x, -y), r
+        return Point(x, y), r
 
-    @staticmethod
-    def __circle_from_points(p1: Point, p2: Point, p3: Point) -> (int, int, int):
-        """ This method takes the equation x² + y² + ax + by + c = 0,
+    def __circle_from_points(self, p1: Point, p2: Point, p3: Point) -> tuple[int, int, int]:
+        """ This method takes the equation x² + y² + 2ax + 2by + c = 0,
             and with 3 points return (a, b, c) """
 
-        # kello on 23:30 ja mä vihaan matikkaa
+        matrix = [
+            [2*p1.x, 2*p1.y, 1, p1.x**2 + p1.y**2],
+            [2*p2.x, 2*p2.y, 1, p2.x**2 + p2.y**2],
+            [2*p3.x, 2*p3.y, 1, p3.x**2 + p3.y**2],
+        ]
 
-        a_top = (p1.y - p3.y) / (p2.y - p1.y) * \
-            (p1.x**2 + p1.y**2 - p2.x**2 - p2.y**2) + \
-            p1.x**2 + p1.y**2 - p3.x**2 - p3.y**2
+        values = self.__gauss_elimination(matrix)
 
-        a_bot = 2 * (
-            (p3.x - p1.x) - \
-            (p1.x - p2.x) * \
-            (p1.y - p3.y) / (p2.y - p1.y)
-        )
+        return tuple(values)
 
-        a = a_top / a_bot
+    @staticmethod
+    def __gauss_elimination(matrix: list[list[int]]) -> list[int]:
+        """ Solve a equation group by gaussian elimination.
+            Please don't input groups with less or more than 1 solution
+        
+            for example...
+            matrix w with 3 unknowns:  
+                [[00, 01, 02, 03],
+                [10, 11, 12, 13],
+                [20, 21, 22, 23]]
+                
+            where X0 is a's scalar, X1 b's, X2 c's and X3 is constant
+        """
 
-        b_top = (p1.x - p3.x) / (p2.x - p1.x) * \
-            (p1.y**2 + p1.x**2 - p2.y**2 - p2.x**2) + \
-            p1.y**2 + p1.x**2 - p3.y**2 - p3.x**2
+        for i, _ in enumerate(matrix):
 
-        b_bot = 2 * (
-            (p3.y - p1.y) - \
-            (p1.y - p2.y) * \
-            (p1.x - p3.x) / (p2.x - p1.x)
-        )
+            # first divide by ik / ii
+            for k, _ in enumerate(matrix[i]):
+                if matrix[i][i] == 0:
+                    raise ZeroDivisionError("Stupid sexy division by zero")
+                matrix[i][k] //= matrix[i][i]
 
-        b = b_top / b_bot
+            # then divide jk / ji and subtract jk - ik
+            for j, _ in enumerate(matrix):
+                if j == i:
+                    continue
 
-        c_top = p3.x / p3.y * (p1.x**2 + p1.y**2) - \
-            p3.x**2 - p3.y**2 + \
-            ((p3.x / p1.x) * p1.y - p3.y) / \
-            (p2.y - p1.y * (p2.x / p1.x)) * \
-            (
-                (p2.x / p1.x) * (p1.x**2 + p1.y**2) - \
-                p2.x**2 - p2.y**2
-            )
+                for k, _ in enumerate(matrix[j]):
+                    if matrix[j][i] == 0:
+                        raise ZeroDivisionError("Stupid sexy division by zero")
+                    matrix[j][k] //= matrix[j][i]
+                    matrix[j][k] -= matrix[i][k]
 
-        c_bot = 1 - (p3.x / p1.x) - \
-            ((p3.x / p1.x) * p1.y - p3.y) / \
-            (p2.y - p1.y * (p2.x / p1.x)) * \
-            (p2.x / p1.x)
+        values = []
 
-        c = c_top / c_bot
+        # finally, divide jk / jj
+        for j, _ in enumerate(matrix):
+            if matrix[j][j] == 0:
+                raise RuntimeError("No solutions or something idk")
 
-        # jos sä tarkistit tän koko methodin, onnittelut.
-        # mä siistin tän joskus™
+            # actually only needs jj / jj and j(-1) / jj
+            matrix[j][j] //= matrix[j][j]
+            matrix[j][-1] //= matrix[j][j]
 
-        return (a, b, c)
+            # also store the j(-1), cause we need to return them
+            values.append(matrix[j][-1])
+
+        return values
 
     def __validate(self, point: Point) -> Point:
         if not isinstance(point, Point):
@@ -436,6 +435,7 @@ class Event:
         return x
 
     def __lt__(self, other: Self) -> bool:
+        # for the priority queue
         return self.x < other.x
 
     @property

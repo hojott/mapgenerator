@@ -19,24 +19,6 @@ class TestPoint(TestCase):
         with self.assertRaises(TypeError):
             fortunes.Point("10", 20)
 
-    def test_point_pienempi_kuin(self):
-        p1 = fortunes.Point(10, 20)
-        p2 = fortunes.Point(20, 20)
-
-        self.assertLess(p1, p2)
-
-    def test_point_suurempi_kuin(self):
-        p1 = fortunes.Point(10, 20)
-        p2 = fortunes.Point(20, 20)
-
-        self.assertGreater(p2, p1)
-
-    def test_point_yhtakuin(self):
-        p1 = fortunes.Point(10, 20)
-        p2 = fortunes.Point(10, 30)
-
-        self.assertEqual(p2, p1)
-
     def test_point_negatiivinen_x(self):
         p1 = fortunes.Point(10, 20)
         p2 = -p1
