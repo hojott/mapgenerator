@@ -459,7 +459,7 @@ class FortunesAlgorithm:
         self._event_queue = PriorityQueue()
         self.add_points(points)
 
-        self._complete = []
+        self._complete = set()
         self._diretrix = 0
         self._beachline = BinaryTree(None)
 
@@ -494,7 +494,7 @@ class FortunesAlgorithm:
         """ Get next event from event queue """
         event = self._event_queue.get()
 
-        self._diretrix = event.point.x
+        self._diretrix = event.x
 
         if event.type == EventType.SITE_EVENT:
             self.__site_event(event.point)
@@ -514,7 +514,7 @@ class FortunesAlgorithm:
             intersect_arc = intersect_leaf.arc
             intersect_point = Point(point.x, intersect_arc.y(point.x, self._diretrix))
 
-            new_branch = self.__new_binary_tree_branch(point, intersect_point, intersect_arc)
+            new_branch = self.__site_event_binary_tree_branch(point, intersect_point, intersect_arc)
         else:
             new_branch = BinaryTreeLeaf(
                 arc=Arc(
@@ -553,7 +553,7 @@ class FortunesAlgorithm:
                 block=False
             )
 
-    def __new_binary_tree_branch(
+    def __site_event_binary_tree_branch(
             self,
             point: Point,
             intersect_point: Point,
@@ -601,10 +601,60 @@ class FortunesAlgorithm:
             right=ray_right
         )
 
+        # TODO: delete circle events, that this event changes.
+
         return ray_left
 
-    def __circle_event(self, point):
-        pass
+    def __circle_event(self, point: Point):
+        """ Circle events are the other type of event.
+            They happen, when an arc is squished between
+            two other arcs """
+
+        leaf_to_delete, leaf_side = self._beachline.find_arc(point.y)
+
+        if leaf_side == Side.LEFT:
+            first_child = leaf_to_delete.parent.right
+        else:
+            first_child = leaf_to_delete.parent.left
+
+        grandparent = leaf_to_delete.parent.parent
+        if grandparent.left == leaf_to_delete.parent:
+            grandparent_side = Side.RIGHT
+            second_child = grandparent.right
+        else:
+            grandparent_side = Side.LEFT
+            second_child = grandparent.left
+
+        new_edge = BinaryTreeBark(
+            ray=Ray(
+                start=point,
+                direction=point # idkk if this is even needed
+            ),
+            left=first_child if grandparent_side == Side.RIGHT else second_child,
+            right=second_child if grandparent_side == Side.RIGHT else first_child
+        )
+
+        megaparent = leaf_to_delete.parent.parent.parent
+        if megaparent.left == leaf_to_delete.parent.parent:
+            megaparent.left = new_edge
+
+        else:
+            megaparent.right = new_edge
+
+        self._complete.add(
+            Edge(
+                start=leaf_to_delete.parent.ray.start,
+                end=point
+            )
+        )
+        self._complete.add(
+            Edge(
+                start=leaf_to_delete.parent.parent.ray.start,
+                end=point
+            )
+        )
+
+        # TODO: delete circle events, that this event changes.
 
     def __validate_size(self, size: tuple[int, int]) -> tuple[int, int]:
         # TODO:
