@@ -44,8 +44,10 @@ class BinaryTreeBark:
         ):
         """ The idea is that normal nodes are rays, the leaves are arcs """
         self._ray = self.__validate_ray(ray)
-        self._left = self.__validate_child(left)
-        self._right = self.__validate_child(right)
+        self._left = None
+        self._right = None
+        self.left = self.__validate_child(left)
+        self.right = self.__validate_child(right)
         self._parent: Self | None = None
 
     def __validate_ray(self, ray: Ray) -> Ray:

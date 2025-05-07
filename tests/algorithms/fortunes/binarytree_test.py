@@ -89,6 +89,12 @@ class TestBinaryTreeBark(TestCase):
         with self.assertRaises(TypeError):
             b.right = 10
 
+    def test_parent_on_oikea(self):
+        b_child = binarytree.BinaryTreeBark(self.ray, self.left_leaf, self.right_leaf)
+        b_parent = binarytree.BinaryTreeBark(self.ray, self.left_leaf, b_child)
+
+        self.assertAlmostEqual(b_child.parent, b_parent)
+
 
 class TestBinaryTree(TestCase):
     def setUp(self):
