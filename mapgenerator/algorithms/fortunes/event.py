@@ -20,6 +20,7 @@ class Event:
         self._x = self.__validate_int(x)
         self._type = self.__validate_type(event_type)
         self._point = self.__validate_point(point)
+        self._active = True
 
     def __validate_point(self, point: Point) -> Point:
         if not isinstance(point, Point):
@@ -54,3 +55,11 @@ class Event:
     @property
     def x(self) -> int:
         return self._x
+
+    @property
+    def active(self) -> bool:
+        return self._active
+
+    @active.setter
+    def active(self, new_status: bool):
+        self._active = new_status

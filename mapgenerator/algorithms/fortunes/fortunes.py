@@ -56,6 +56,9 @@ class FortunesAlgorithm:
 
         self._diretrix = event.x
 
+        if not event.active:
+            return
+
         if event.type == EventType.SITE_EVENT:
             self.__site_event(event.point)
         else:
@@ -66,8 +69,14 @@ class FortunesAlgorithm:
             that happen everytime a new site (point on the map)
             is discovered """
 
-        # TODO: Siivoa :D
+        new_branch = self.__place_new_site(point)
 
+        if isinstance(new_branch, BinaryTreeLeaf):
+            return
+
+        self.__create_circle_events(new_branch)
+
+    def __place_new_site(self, point: Point) -> BinaryTreeBark | BinaryTreeLeaf:
         intersect_leaf, side = self._beachline.find_arc(point.y)
 
         if intersect_leaf is not None:
@@ -91,33 +100,7 @@ class FortunesAlgorithm:
         else:
             self._beachline.root = new_branch
 
-        # Find circle events for new branch
-        if isinstance(new_branch, BinaryTreeLeaf):
-            return
-
-        new_arc_leaf = new_branch.right.left
-        for side, side_arc_leaf in zip(
-            [Side.LEFT, Side.RIGHT],
-            [new_branch.left, new_branch.right.right]
-            ):
-
-            new_arc = new_arc_leaf.arc
-            side_arc = side_arc_leaf.arc
-            other_arc = self._beachline.find_next_arc(side, side_arc_leaf)
-
-            if other_arc is None:
-                return
-
-            circle_point, r = side_arc.circle_point(new_arc, other_arc)
-
-            self._event_queue.put(
-                Event(
-                    x=circle_point.x + r,
-                    event_type=EventType.CIRCLE_EVENT,
-                    point=circle_point
-                ),
-                block=False
-            )
+        return new_branch
 
     def __site_event_binary_tree_branch(
             self,
@@ -167,9 +150,33 @@ class FortunesAlgorithm:
             right=ray_right
         )
 
-        # TODO: delete circle events, that this event changes.
-
         return ray_left
+
+    def __create_circle_events(self, new_branch: BinaryTreeBark):
+        new_arc_leaf = new_branch.right.left
+
+        for side, side_arc_leaf in zip(
+            [Side.LEFT, Side.RIGHT],
+            [new_branch.left, new_branch.right.right]
+            ):
+
+            new_arc = new_arc_leaf.arc
+            side_arc = side_arc_leaf.arc
+            other_arc = self._beachline.find_next_arc(side, side_arc_leaf)
+
+            if other_arc is None:
+                return
+
+            circle_point, r = side_arc.circle_point(new_arc, other_arc)
+
+            self._event_queue.put(
+                Event(
+                    x=circle_point.x + r,
+                    event_type=EventType.CIRCLE_EVENT,
+                    point=circle_point
+                ),
+                block=False
+            )
 
     def __circle_event(self, point: Point):
         """ Circle events are the other type of event.
@@ -177,6 +184,31 @@ class FortunesAlgorithm:
             two other arcs """
 
         leaf_to_delete, leaf_side = self._beachline.find_arc(point.y)
+
+        new_branch = self.__remove_arcs(point, leaf_to_delete, leaf_side)
+
+        self.__create_circle_events(new_branch)
+
+        # Add new completed edges
+        self._complete.add(
+            Edge(
+                start=leaf_to_delete.parent.ray.start,
+                end=point
+            )
+        )
+        self._complete.add(
+            Edge(
+                start=leaf_to_delete.parent.parent.ray.start,
+                end=point
+            )
+        )
+
+    def __remove_arcs(
+            self,
+            circle_point: Point,
+            leaf_to_delete: BinaryTreeLeaf,
+            leaf_side: Side
+        ) -> BinaryTreeBark:
 
         if leaf_side == Side.LEFT:
             first_child = leaf_to_delete.parent.right
@@ -191,10 +223,10 @@ class FortunesAlgorithm:
             grandparent_side = Side.LEFT
             second_child = grandparent.left
 
-        new_edge = BinaryTreeBark(
+        new_branch = BinaryTreeBark(
             ray=Ray(
-                start=point,
-                direction=point # idkk if this is even needed
+                start=circle_point,
+                direction=circle_point # idkk if this is even needed
             ),
             left=first_child if grandparent_side == Side.RIGHT else second_child,
             right=second_child if grandparent_side == Side.RIGHT else first_child
@@ -202,25 +234,12 @@ class FortunesAlgorithm:
 
         megaparent = leaf_to_delete.parent.parent.parent
         if megaparent.left == leaf_to_delete.parent.parent:
-            megaparent.left = new_edge
+            megaparent.left = new_branch
 
         else:
-            megaparent.right = new_edge
+            megaparent.right = new_branch
 
-        self._complete.add(
-            Edge(
-                start=leaf_to_delete.parent.ray.start,
-                end=point
-            )
-        )
-        self._complete.add(
-            Edge(
-                start=leaf_to_delete.parent.parent.ray.start,
-                end=point
-            )
-        )
-
-        # TODO: delete circle events, that this event changes.
+        return new_branch
 
     def __validate_size(self, size: tuple[int, int]) -> tuple[int, int]:
         # TODO:
