@@ -3,7 +3,7 @@
 # kato BinaryTreeLeaf.__init__
 from __future__ import annotations
 
-from math import floor, sqrt
+from math import sqrt
 from queue import PriorityQueue
 from typing import Self
 from enum import Enum
@@ -85,7 +85,7 @@ class Arc:
 
     def x(self, y: int, diretrix: int) -> int:
         """ Magic math for the arc """
-        x = floor(
+        x = round(
             1/2 * \
             1/(self.focal.x - diretrix) * \
             (y - self.focal.y)**2 + \
@@ -97,7 +97,7 @@ class Arc:
 
     def tangent(self, y: int, diretrix: int) -> Point:
         """ Even magicer math for the arc """
-        dx = floor(
+        dx = round(
             1/(self.focal.x - diretrix) * \
             (y - self.focal.y)
         )
@@ -117,20 +117,20 @@ class Arc:
 
         a, b, c, *_ = self.__circle_from_points(p1, p2, p3)
 
-        x = -int(a)
-        y = -int(b)
-        r = int(sqrt(x**2 + y**2 - c))
+        x = -round(a)
+        y = -round(b)
+        r = round(sqrt(a**2 + b**2 - c))
 
         return Point(x, y), r
 
-    def __circle_from_points(self, p1: Point, p2: Point, p3: Point) -> tuple[int, int, int]:
+    def __circle_from_points(self, p1: Point, p2: Point, p3: Point) -> tuple[float, float, float]:
         """ This method takes the equation x² + y² + 2ax + 2by + c = 0,
             and with 3 points return (a, b, c) """
 
         matrix = [
-            [2*p1.x, 2*p1.y, 1, p1.x**2 + p1.y**2],
-            [2*p2.x, 2*p2.y, 1, p2.x**2 + p2.y**2],
-            [2*p3.x, 2*p3.y, 1, p3.x**2 + p3.y**2],
+            [2*p1.x, 2*p1.y, 1, -(p1.x**2 + p1.y**2)],
+            [2*p2.x, 2*p2.y, 1, -(p2.x**2 + p2.y**2)],
+            [2*p3.x, 2*p3.y, 1, -(p3.x**2 + p3.y**2)],
         ]
 
         values = self.__gauss_elimination(matrix)
@@ -154,9 +154,10 @@ class Arc:
         for i, _ in enumerate(matrix):
 
             # first divide by ik / ii
+            if matrix[i][i] == 0:
+                raise ZeroDivisionError("Stupid sexy division by zero")
+
             for k, _ in enumerate(matrix[i]):
-                if matrix[i][i] == 0:
-                    raise ZeroDivisionError("Stupid sexy division by zero")
                 if i == k:
                     continue
 
@@ -169,9 +170,7 @@ class Arc:
                 if j == i:
                     continue
 
-                print(matrix[j][i])
                 if matrix[j][i] == 0:
-                    print("skip")
                     continue
 
                 for k, _ in enumerate(matrix[j]):
@@ -191,11 +190,11 @@ class Arc:
                 raise RuntimeError("No solutions or something idk")
 
             # actually only needs jj / jj and j(-1) / jj
-            matrix[j][j] /= matrix[j][j]
             matrix[j][-1] /= matrix[j][j]
+            matrix[j][j] /= matrix[j][j]
 
             # also store the j(-1), cause we need to return them
-            values.append(int(matrix[j][-1]))
+            values.append(matrix[j][-1])
 
         return values
 

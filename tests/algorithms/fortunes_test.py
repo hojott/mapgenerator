@@ -107,7 +107,7 @@ class TestArc(TestCase):
         y = 15
         diretrix = 20
 
-        self.assertEqual(a.x(y, diretrix), 11)
+        self.assertEqual(a.x(y, diretrix), 12)
 
     def test_tangent_patevalle_y(self):
         focal_point = fortunes.Point(5, 10)
@@ -116,7 +116,7 @@ class TestArc(TestCase):
         y = 15
         diretrix = 20
 
-        self.assertAlmostEqual(a.tangent(y, diretrix).x, -1)
+        self.assertAlmostEqual(a.tangent(y, diretrix).x, 0)
 
     def test_gaussian_elimination_toimiva_lauseke(self):
         a = fortunes.Arc(self.focal_point)
@@ -131,6 +131,26 @@ class TestArc(TestCase):
         real = [-23, 38, 9]
 
         self.assertAlmostEqual(ans[0], real[0])
+        self.assertAlmostEqual(ans[1], real[1])
+        self.assertAlmostEqual(ans[2], real[2])
+
+    def test_ympyra_piste_toimiva_lauseke(self):
+        p1 = fortunes.Point(-6, 3)
+        p2 = fortunes.Point(-3, 2)
+        p3 = fortunes.Point(0, 3)
+
+        a1 = fortunes.Arc(p1)
+        a2 = fortunes.Arc(p2)
+        a3 = fortunes.Arc(p3)
+
+        raw_ans = a1.circle_point(a2, a3)
+        ans = [raw_ans[0].x, raw_ans[0].y, raw_ans[1]]
+        real = (-3, 7, 5)
+
+        print(ans)
+        self.assertAlmostEqual(ans[0], real[0])
+        self.assertAlmostEqual(ans[1], real[1])
+        self.assertAlmostEqual(ans[2], real[2])
 
 
 class TestBinaryTreeLeaf(TestCase):
