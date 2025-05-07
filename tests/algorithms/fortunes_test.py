@@ -118,6 +118,20 @@ class TestArc(TestCase):
 
         self.assertAlmostEqual(a.tangent(y, diretrix).x, -1)
 
+    def test_gaussian_elimination_toimiva_lauseke(self):
+        a = fortunes.Arc(self.focal_point)
+
+        matrix = [
+            [1, 1,  1, 24],
+            [4, 2,  2,  2],
+            [1, 1, -1,  6]
+        ]
+
+        ans = a._Arc__gauss_elimination(matrix)
+        real = [-23, 38, 9]
+
+        self.assertAlmostEqual(ans[0], real[0])
+
 
 class TestBinaryTreeLeaf(TestCase):
     def setUp(self):

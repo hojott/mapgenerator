@@ -157,18 +157,31 @@ class Arc:
             for k, _ in enumerate(matrix[i]):
                 if matrix[i][i] == 0:
                     raise ZeroDivisionError("Stupid sexy division by zero")
-                matrix[i][k] //= matrix[i][i]
+                if i == k:
+                    continue
+
+                matrix[i][k] /= matrix[i][i]
+
+            matrix[i][i] /= matrix[i][i]
 
             # then divide jk / ji and subtract jk - ik
             for j, _ in enumerate(matrix):
                 if j == i:
                     continue
 
+                print(matrix[j][i])
+                if matrix[j][i] == 0:
+                    print("skip")
+                    continue
+
                 for k, _ in enumerate(matrix[j]):
-                    if matrix[j][i] == 0:
-                        raise ZeroDivisionError("Stupid sexy division by zero")
-                    matrix[j][k] //= matrix[j][i]
+                    if i == k:
+                        continue
+
+                    matrix[j][k] /= matrix[j][i]
                     matrix[j][k] -= matrix[i][k]
+                
+                matrix[j][i] -= matrix[j][i]
 
         values = []
 
@@ -178,11 +191,11 @@ class Arc:
                 raise RuntimeError("No solutions or something idk")
 
             # actually only needs jj / jj and j(-1) / jj
-            matrix[j][j] //= matrix[j][j]
-            matrix[j][-1] //= matrix[j][j]
+            matrix[j][j] /= matrix[j][j]
+            matrix[j][-1] /= matrix[j][j]
 
             # also store the j(-1), cause we need to return them
-            values.append(matrix[j][-1])
+            values.append(int(matrix[j][-1]))
 
         return values
 
