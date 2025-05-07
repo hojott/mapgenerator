@@ -175,7 +175,7 @@ class Arc:
 
                     matrix[j][k] /= matrix[j][i]
                     matrix[j][k] -= matrix[i][k]
-                
+
                 matrix[j][i] -= matrix[j][i]
 
         values = []

@@ -18,7 +18,7 @@ def load_points() -> list[Point]:
         if not ',' in arg:
             print_help("Point coordinates must be split by \",\"")
         raw_point = arg.split(",")
-        
+
         try:
             point = Point(
                 int(raw_point[0]),
@@ -26,7 +26,7 @@ def load_points() -> list[Point]:
             )
         except ValueError:
             print_help("Point coordinates must be integers!")
-        
+
         points.append(point)
 
     if not points:
@@ -42,7 +42,7 @@ def print_help(message: str = None):
     print()
     print("Example: python -m mapgenerator 100,155 300,54")
 
-    exit()
+    sys.exit()
 
 def main():
 
