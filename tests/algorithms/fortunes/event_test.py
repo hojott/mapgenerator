@@ -1,12 +1,12 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from mapgenerator.algorithms.fortunes import event
+from mapgenerator.algorithms.fortunes import event, base_structs
 
 class TestEvent(TestCase):
     def setUp(self):
         self.event_type = Mock(spec=event.EventType)
-        self.point = Mock(spec=event.Point)
+        self.point = Mock(spec=base_structs.Point)
 
     def test_konstruktorille_pateva_piste(self):
         e = event.Event(10, self.event_type, self.point)

@@ -1,11 +1,11 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from mapgenerator.algorithms.fortunes import binarytree
+from mapgenerator.algorithms.fortunes import binarytree, base_structs
 
 class TestBinaryTreeLeaf(TestCase):
     def setUp(self):
-        self.arc = Mock(spec=binarytree.Arc)
+        self.arc = Mock(spec=base_structs.Arc)
 
     def test_konstruktorille_pateva_arc(self):
         l = binarytree.BinaryTreeLeaf(self.arc)
@@ -20,7 +20,7 @@ class TestBinaryTreeLeaf(TestCase):
 
 class TestBinaryTreeBark(TestCase):
     def setUp(self):
-        self.ray = Mock(spec=binarytree.Ray)
+        self.ray = Mock(spec=base_structs.Ray)
         self.left_bark = Mock(spec=binarytree.BinaryTreeBark)
         self.right_bark = Mock(spec=binarytree.BinaryTreeBark)
         self.left_leaf = Mock(spec=binarytree.BinaryTreeLeaf)
@@ -158,7 +158,7 @@ class TestBinaryTree(TestCase):
         y = 10
         self.bark.left = self.leaf_vasen
         self.bark.right = self.leaf_oikea
-        self.bark.ray.y = 15
+        self.bark.ray.start.y = 15
         b = binarytree.BinaryTree(root=root)
 
         self.assertAlmostEqual(b.find_arc(y)[0], self.leaf_vasen)
@@ -169,7 +169,7 @@ class TestBinaryTree(TestCase):
         y = 10
         self.bark.left = self.leaf_vasen
         self.bark.right = self.leaf_oikea
-        self.bark.ray.y = 5
+        self.bark.ray.start.y = 5
         b = binarytree.BinaryTree(root=root)
 
         self.assertAlmostEqual(b.find_arc(y)[0], self.leaf_oikea)
@@ -180,7 +180,7 @@ class TestBinaryTree(TestCase):
         y = 10
         self.bark.left = self.leaf_vasen
         self.bark.right = self.leaf_oikea
-        self.bark.ray.y = y
+        self.bark.ray.start.y = y
         b = binarytree.BinaryTree(root=root)
 
         self.assertAlmostEqual(b.find_arc(y)[0], self.leaf_oikea)
@@ -191,8 +191,8 @@ class TestBinaryTree(TestCase):
         y = 10
         self.bark.left = self.leaf_vasen
         self.bark.right = self.bark_oikea
-        self.bark.ray.y = 5
-        self.bark.right.ray.y = 9
+        self.bark.ray.start.y = 5
+        self.bark.right.ray.start.y = 9
         self.bark.right.right = self.leaf_oikea
         b = binarytree.BinaryTree(root=root)
 
