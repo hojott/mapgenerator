@@ -1,14 +1,14 @@
 ## Viikkoraportti 1
 
-Työtunnit: 2h 30min
+Työtunnit: 15min
 
-1. **Mitä olen tehnyt tällä viikolla?** - En ensimmäisellä viikolla ehtinyt vielä hirveästi. Minulla oli jo idea valmiiksi, niin en tarvinnut käyttää siihen aikaa. Istuin alkuluennolla ja etsin kurssiohjaajien sähköpostit. En löytänyt, kumpi piti luennon, niin en uskaltanut lähettää sähköpostia.
+1. **Mitä olen tehnyt tällä viikolla?** - Olen nyt ensimmäisellä viikolla resetoinut viikko raportit, kun jatkan viime kerrasta.
 
-2. **Miten ohjelma on edistynyt?** - Minulla on aihe :D
+2. **Miten ohjelma on edistynyt?** - Minulla on melko valmis ohjelma :D
 
-3. **Mitä opin tällä viikolla / tänään?** - Opin vähän Barnes-Hut algoritmista, mutta enimmäkseen opin kurssin työtavoista.
+3. **Mitä opin tällä viikolla / tänään?** - En tehnyt oikein mitään
 
-4. **Mikä jäi epäselväksi tai tuottanut vaikeuksia?** -  Saanko tehdä tästä aiheesta vai en :D
+4. **Mikä jäi epäselväksi tai tuottanut vaikeuksia?** -  Vaikeuksia tuottanut ohtu-projekti
 
-5. **Mitä teen seuraavaksi?** - Aloitan kai tekemällä kurssirepon ja voishan sen sähköpostinkin lähettää
+5. **Mitä teen seuraavaksi?** - Jatkan ytimen tunkkaamista
 
